@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>History | Smart Green House System</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .header{padding:28px;margin-bottom:18px}
+    .header h1{margin:0;font-size:clamp(32px,5vw,58px);color:var(--cyan)}
+    .header p{color:var(--muted);line-height:1.55}
+    .table-wrap{overflow-x:auto;border-radius:18px;border:1px solid rgba(111,189,255,.12)}
+    table{width:100%;min-width:1300px;border-collapse:collapse;background:rgba(255,255,255,.018)}
+    th,td{padding:14px 12px;text-align:center;border-bottom:1px solid rgba(111,189,255,.08);font-size:14px}
+    th{background:#102944;color:#dff6ff;text-transform:uppercase;letter-spacing:.5px;font-size:12px}
+    .on{color:var(--green);font-weight:900}.off{color:var(--red);font-weight:900}
+    .page-row{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 14px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section class="header glass fade-up">
+      <h1>History Data</h1>
+      <p>Maximum 200 rows per page. Maximum 5 pages.</p>
+    </section>
+
+    <div class="actions">
+      <a class="link-btn secondary" href="dashboard.html">Back to Dashboard</a>
+      <button onclick="loadPage(currentPage)">Refresh History</button>
+      <button onclick="openSettings()">Theme Settings</button>
+      <button onclick="exportCSV()">Export Current Page CSV</button>
+      <button class="danger" onclick="logout()">Logout</button>
+    </div>
+
+    <div id="messageBox" class="message"></div>
+    <div id="errorBox" class="error"></div>
+
+    <section class="section glass fade-up">
+      <div class="page-row">
+        <button id="page1" class="secondary" onclick="loadPage(1)">Page 1</button>
+        <button id="page2" class="secondary" onclick="loadPage(2)">Page 2</button>
+        <button id="page3" class="secondary" onclick="loadPage(3)">Page 3</button>
+        <button id="page4" class="secondary" onclick="loadPage(4)">Page 4</button>
+        <button id="page5" class="secondary" onclick="loadPage(5)">Page 5</button>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>No.</th>
+              <th>Time</th>
+              <th>Temperature</th>
+              <th>Humidity</th>
+              <th>Light</th>
+              <th>Moisture Sensor 1</th>
+              <th>Moisture Sensor 2</th>
+              <th>Overall Soil</th>
+              <th>Tray Water Level</th>
+              <th>Light Bulb</th>
+              <th>Irrigation Pump</th>
+              <th>Tray Return Pump</th>
+              <th>Fertilizer Pump</th>
+              <th>Light ON Time</th>
+              <th>Irrigation ON Time</th>
+              <th>Tray Pump ON Time</th>
+              <th>Fertilizer ON Time</th>
+            </tr>
+          </thead>
+          <tbody id="historyBody">
+            <tr><td colspan="17">No data loaded yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+  <div id="settingsModal" class="modal-backdrop">
+    <div class="modal">
+      <h2>Theme Settings</h2>
+      <p>Choose dark mode or light mode. Supabase URL and API key are stored inside <b>supabase_config.js</b>.</p>
+
+      <div id="themeModeText" class="theme-mode-text">Current mode: Dark Mode</div>
+
+      <div class="theme-choice-row">
+        <button onclick="setThemeMode('dark')">Dark Mode</button>
+        <button class="secondary" onclick="setThemeMode('light')">Light Mode</button>
+      </div>
+
+      <div class="modal-actions">
+        <button class="secondary" onclick="closeSettings()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <script src="supabase_config.js"></script>
+  <script src="auth.js"></script>
+  <script src="bgm.js"></script>
+  <script src="theater.js"></script>
+  <script src="history.js"></script>
+</body>
+</html>

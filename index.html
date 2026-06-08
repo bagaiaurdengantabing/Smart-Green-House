@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Smart Green House System</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #07111f;
+    }
+
+    #pageFrame {
+      width: 100%;
+      height: 100vh;
+      border: 0;
+      display: block;
+      background: #07111f;
+    }
+
+    #speakerToggleBtn {
+      z-index: 99999;
+    }
+  </style>
+</head>
+<body>
+  <iframe id="pageFrame" title="Smart Green House System"></iframe>
+
+  <script src="bgm.js"></script>
+
+  <script>
+    const AUTH_UNTIL_KEY = "GREENHOUSE_AUTH_UNTIL";
+    const frame = document.getElementById("pageFrame");
+
+    function chooseStartPage() {
+      const authUntil = Number(localStorage.getItem(AUTH_UNTIL_KEY) || 0);
+      return authUntil > Date.now() ? "dashboard.html" : "login.html";
+    }
+
+    frame.src = chooseStartPage();
+
+    // Allow direct hash opening if needed:
+    // /#history opens history page.
+    if (window.location.hash === "#history") {
+      frame.src = "history.html";
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <defs>
+    <linearGradient id="sky" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#071832"/>
+      <stop offset="0.55" stop-color="#0a2b4b"/>
+      <stop offset="1" stop-color="#133862"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" x2="1">
+      <stop offset="0" stop-color="#53e0ff" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#72ffbc" stop-opacity="0.35"/>
+    </linearGradient>
+    <linearGradient id="ground" x1="0" x2="1">
+      <stop offset="0" stop-color="#2af598" stop-opacity="0.65"/>
+      <stop offset="1" stop-color="#009efd" stop-opacity="0.45"/>
+    </linearGradient>
+    <filter id="soft"><feGaussianBlur stdDeviation="12"/></filter>
+    <filter id="glow"><feGaussianBlur stdDeviation="3"/></filter>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#sky)"/>
+  <circle cx="260" cy="150" r="155" fill="#46d9ff" opacity="0.26" filter="url(#soft)"/>
+  <circle cx="1580" cy="190" r="190" fill="#ff8ac5" opacity="0.18" filter="url(#soft)"/>
+  <circle cx="970" cy="900" r="260" fill="#43ffb1" opacity="0.16" filter="url(#soft)"/>
+
+  <g opacity="0.12" stroke="#9de7ff" stroke-width="1.3">
+    <path d="M0 90H1920M0 180H1920M0 270H1920M0 360H1920M0 450H1920M0 540H1920M0 630H1920M0 720H1920M0 810H1920M0 900H1920M0 990H1920"/>
+    <path d="M120 0V1080M240 0V1080M360 0V1080M480 0V1080M600 0V1080M720 0V1080M840 0V1080M960 0V1080M1080 0V1080M1200 0V1080M1320 0V1080M1440 0V1080M1560 0V1080M1680 0V1080M1800 0V1080"/>
+  </g>
+
+  <g opacity="0.34" stroke="#46d9ff" stroke-width="4" fill="none">
+    <path d="M170 190h180l70 95h190"/>
+    <path d="M1390 300h200l60-75h160"/>
+    <path d="M290 850h190l55-65h170"/>
+    <circle cx="170" cy="190" r="10" fill="#46d9ff"/>
+    <circle cx="610" cy="285" r="10" fill="#43ffb1"/>
+    <circle cx="1390" cy="300" r="10" fill="#b0a2ff"/>
+    <circle cx="1810" cy="225" r="10" fill="#ff6380"/>
+  </g>
+
+  <!-- main greenhouse -->
+  <g transform="translate(1090 520)" opacity="0.55">
+    <path d="M0 220 L260 35 L520 220 Z" fill="url(#glass)" stroke="#43ffb1" stroke-width="11"/>
+    <rect x="70" y="220" width="380" height="230" rx="32" fill="rgba(70,217,255,.18)" stroke="#46d9ff" stroke-width="11"/>
+    <path d="M260 35V450M70 295H450M145 220V450M260 220V450M375 220V450" stroke="#b9f6ff" stroke-width="6"/>
+    <path d="M45 495 C160 430 365 430 495 495" stroke="#43ffb1" stroke-width="20" stroke-linecap="round"/>
+    <circle cx="260" cy="370" r="32" fill="#43ffb1"/>
+  </g>
+
+  <!-- robot -->
+  <g transform="translate(145 660)" opacity="0.55">
+    <rect x="0" y="30" width="240" height="170" rx="42" fill="#55dfff"/>
+    <rect x="46" y="62" width="148" height="62" rx="24" fill="#121a31"/>
+    <circle cx="88" cy="93" r="15" fill="#43ffb1" filter="url(#glow)"/>
+    <circle cx="152" cy="93" r="15" fill="#43ffb1" filter="url(#glow)"/>
+    <path d="M86 147 Q120 170 154 147" stroke="#121a31" stroke-width="10" stroke-linecap="round" fill="none"/>
+    <path d="M40 -25V30M200 -25V30" stroke="#ff6380" stroke-width="10" stroke-linecap="round"/>
+    <circle cx="40" cy="-35" r="14" fill="#ff6380"/>
+    <circle cx="200" cy="-35" r="14" fill="#ff6380"/>
+    <rect x="82" y="10" width="80" height="20" rx="10" fill="#ffd166"/>
+  </g>
+
+  <!-- plant -->
+  <g transform="translate(760 145)" opacity="0.45">
+    <path d="M130 0 C205 44 165 145 92 158 C23 170 -25 95 10 35 C42 -20 92 -20 130 0Z" fill="#76ff45"/>
+    <path d="M92 155 C102 218 92 270 74 330" stroke="#43ffb1" stroke-width="16" stroke-linecap="round"/>
+    <path d="M74 330 C28 344 8 378 6 420H174C168 372 128 340 74 330Z" fill="#b67a5f"/>
+  </g>
+
+  <g opacity="0.28">
+    <circle cx="1320" cy="130" r="7" fill="#ffd166"/>
+    <path d="M1320 98V162M1288 130H1352" stroke="#ffd166" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="1420" cy="470" r="6" fill="#43ffb1"/>
+    <path d="M1420 438V502M1388 470H1452" stroke="#43ffb1" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="520" cy="380" r="6" fill="#ff6380"/>
+    <path d="M520 348V412M488 380H552" stroke="#ff6380" stroke-width="6" stroke-linecap="round"/>
+  </g>
+</svg>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Login | Smart Green House System</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .login-wrap{min-height:100vh;display:grid;place-items:center;padding:22px;position:relative;z-index:1}
+    .login-card{width:min(560px,100%);padding:30px;position:relative;overflow:hidden}
+    .login-card::after{content:"🤖 🌱 🏡 ✨";position:absolute;right:20px;top:24px;font-size:52px;opacity:.18;filter:drop-shadow(0 0 18px rgba(70,217,255,.36));animation:floaty 3s ease-in-out infinite}
+    .login-card h1{font-size:clamp(34px,7vw,58px);line-height:1.02;margin:0 0 10px;color:var(--cyan)}
+    .login-card p{color:var(--muted);line-height:1.6;margin:0 0 22px}
+    .switch-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+    .small{font-size:13px;color:var(--muted);margin-top:14px;line-height:1.5}
+    @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  </style>
+</head>
+<body>
+  <div class="login-wrap">
+    <section class="login-card glass fade-up">
+      <div class="badge">Protected Dashboard</div>
+      <h1>Smart Green House System</h1>
+      <p id="formSubtitle">Login to view the data. Session expires every 6 hours.</p>
+
+      <div id="messageBox" class="message"></div>
+      <div id="errorBox" class="error"></div>
+
+      <h2 id="formTitle">Login</h2>
+
+      <div class="form-row">
+        <label>Username</label>
+        <input id="username" value="admin" autocomplete="username">
+      </div>
+
+      <div class="form-row">
+        <label>Password</label>
+        <input id="password" type="password" placeholder="Default: 12345678" autocomplete="current-password">
+      </div>
+
+      <button id="submitBtn" style="width:100%" onclick="submitForm()">Login</button>
+
+      <div class="switch-row">
+        <button id="switchSignupBtn" class="secondary" onclick="switchMode('signup')">Sign Up</button>
+        <button id="switchLoginBtn" class="secondary" onclick="switchMode('login')">Back to Login</button>
+      </div>
+
+      <div class="small">
+        Default demo account: <b>admin</b> / <b>12345678</b><br>
+      </div>
+    </section>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase_config.js"></script>
+  <script src="auth.js"></script>
+  <script src="bgm.js"></script>
+  <script src="theater.js"></script>
+  <script src="login.js"></script>
+</body>
+</html>

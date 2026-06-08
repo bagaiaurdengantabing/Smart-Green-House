@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Smart Green House System</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <section class="hero">
+      <div class="hero-main glass fade-up">
+<h1 class="hero-title"><span>Smart Green House</span> System</h1>
+        <div class="condition-row">
+          <div class="condition">Light ON when lux &lt; <span id="lightThresholdShow">150</span></div>
+          <div class="condition">Irrigation pump ON when overall soil moisture &lt; <span id="moistureThresholdShow">70</span>%</div>
+          <div class="condition">Tray pump ON when tray water &gt; <span id="trayThresholdShow">0</span>%</div>
+</div>
+      </div>
+      <aside class="status-card glass fade-up">
+        <h3>Connection</h3>
+        <div id="statusBig" class="status-word">Not connected</div>
+        <div class="status-pill"><span id="statusDot" class="dot"></span><span id="connectionStatus">Waiting</span></div>
+        <div class="status-actions">
+          <button onclick="loadData(true)">Refresh</button>
+          <button class="secondary" onclick="openSettings()">Theme</button>
+          <button class="secondary" onclick="openThresholdModal()">Thresholds</button>
+        </div>
+        <div class="countdown">Next refresh: <b id="countdownText">10:00</b></div>
+      </aside>
+    </section>
+
+    <div class="actions">
+      <a class="link-btn secondary" href="history.html">History Page</a>
+      <button class="secondary" onclick="insertTestRow()">Insert Test Row</button>
+      <button class="secondary" onclick="openThresholdModal()">Threshold Settings</button>
+      <button class="danger" onclick="logout()">Logout</button>
+    </div>
+
+        <div id="messageBox" class="message"></div>
+    <div id="errorBox" class="error"></div>
+
+    <section class="kpi-grid">
+      <article class="card glass fade-up"><div class="label">Temperature</div><div id="temperatureValue" class="value value-yellow">-- °C</div><div class="note">Current temperature.</div></article>
+      <article class="card glass fade-up"><div class="label">Humidity</div><div id="humidityValue" class="value value-cyan">-- %</div><div class="note">Current humidity.</div></article>
+      <article class="card glass fade-up"><div class="label">Light Level</div><div id="luxValue" class="value value-purple">-- lx</div><div class="note">Light condition.</div></article>
+      <article class="card glass fade-up"><div class="label">Moisture Sensor 1</div><div id="moisture1Value" class="value value-green">-- %</div><div class="note">Soil sensor 1 reading.</div></article>
+      <article class="card glass fade-up"><div class="label">Moisture Sensor 2</div><div id="moisture2Value" class="value value-green">-- %</div><div class="note">Soil sensor 2 reading.</div></article>
+      <article class="card glass fade-up"><div class="label">Overall Soil Moisture</div><div id="moistureValue" class="value value-green">-- %</div><div class="note">Average of sensor 1 and sensor 2.</div></article>
+      <article class="card glass fade-up"><div class="label">Tray Water Level</div><div id="waterLevelValue" class="value value-cyan">-- %</div><div class="note" id="waterLevelNote">Bottom tray water condition.</div></article>
+    </section>
+
+    <section class="section glass fade-up">
+      <div class="section-title">Device Control</div>
+      <p class="subtext">Manual ON/OFF overrides automatic control. AUTO returns the light bulb, irrigation pump, and tray return pump to the condition rules.</p>
+      <div class="device-grid">
+        <article class="card glass">
+          <div class="label">Light Bulb</div>
+          <div id="lightRelayValue" class="value">--</div>
+          <div id="lightModeText" class="note">Mode: --</div>
+          <div id="lightOnTimeText" class="note">ON time: --</div>
+          <div class="control-row">
+            <button id="lightOnBtn" class="on-btn" onclick="sendDeviceCommand('light_bulb','manual',true)">ON</button>
+            <button id="lightOffBtn" class="off-btn" onclick="sendDeviceCommand('light_bulb','manual',false)">OFF</button>
+            <button id="lightAutoBtn" class="auto-btn" onclick="sendDeviceCommand('light_bulb','auto',false)">AUTO</button>
+          </div>
+        </article>
+
+        <article class="card glass">
+          <div class="label">Irrigation Pump</div>
+          <div id="pumpRelayValue" class="value">--</div>
+          <div id="pumpModeText" class="note">Mode: --</div>
+          <div id="pumpOnTimeText" class="note">ON time: --</div>
+          <div class="control-row">
+            <button id="pumpOnBtn" class="on-btn" onclick="sendDeviceCommand('water_pump','manual',true)">ON</button>
+            <button id="pumpOffBtn" class="off-btn" onclick="sendDeviceCommand('water_pump','manual',false)">OFF</button>
+            <button id="pumpAutoBtn" class="auto-btn" onclick="sendDeviceCommand('water_pump','auto',false)">AUTO</button>
+          </div>
+        </article>
+
+
+        <article class="card glass">
+          <div class="label">Tray Return Pump</div>
+          <div id="trayPumpRelayValue" class="value">--</div>
+          <div id="trayPumpModeText" class="note">Mode: --</div>
+          <div id="trayPumpOnTimeText" class="note">ON time: --</div>
+          <div class="control-row">
+            <button id="trayPumpOnBtn" class="on-btn" onclick="sendDeviceCommand('tray_pump','manual',true)">ON</button>
+            <button id="trayPumpOffBtn" class="off-btn" onclick="sendDeviceCommand('tray_pump','manual',false)">OFF</button>
+            <button id="trayPumpAutoBtn" class="auto-btn" onclick="sendDeviceCommand('tray_pump','auto',false)">AUTO</button>
+          </div>
+        </article>
+
+        <article class="card glass">
+          <div class="label">Fertilizer Pump</div>
+          <div id="fertilizerRelayValue" class="value">--</div>
+          <div id="fertilizerModeText" class="note">Mode: --</div>
+          <div id="fertilizerOnTimeText" class="note">ON time: --</div>
+          <div class="control-row">
+            <button id="fertilizerOnBtn" class="on-btn" onclick="sendDeviceCommand('fertilizer_pump','manual',true)">ON</button>
+            <button id="fertilizerOffBtn" class="off-btn" onclick="sendDeviceCommand('fertilizer_pump','manual',false)">OFF</button>
+          </div>
+        </article>
+      </div>
+    </section>
+    <section class="section glass fade-up">
+      <div class="section-title">Data Graph</div>
+      <p class="subtext">Choose a time range. The graph uses the data from the latest refresh only.</p>
+      <div class="filter-row">
+        <button id="range1h" class="secondary" onclick="setRange('1h')">Last 1 hr</button>
+        <button id="range5h" class="secondary" onclick="setRange('5h')">Last 5 hr</button>
+        <button id="range1d" class="secondary" onclick="setRange('1d')">Last 1 day</button>
+        <button id="rangeAll" class="secondary" onclick="setRange('all')">All</button>
+      </div>
+      <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
+      <div class="legend">
+        <div class="legend-item"><span class="swatch" style="background:#46ffb1"></span>Overall soil moisture (%)</div>
+        <div class="legend-item"><span class="swatch" style="background:#46d9ff"></span>Light level ÷ 10</div>
+        <div class="legend-item"><span class="swatch" style="background:#ffd166"></span>Temperature (°C)</div>
+        <div class="legend-item"><span class="swatch" style="background:#b0a2ff"></span>Humidity (%)</div>
+        <div class="legend-item"><span class="swatch" style="background:#ff6380"></span>Tray water level (%)</div>
+      </div>
+    </section>
+
+    <div class="footer">Smart Green House System • Water recycling tray • Auto BGM • Graph uses latest refreshed data</div>
+  </div>
+  <div id="alertModal" class="modal-backdrop">
+    <div class="modal">
+      <h2 class="alert-modal-title">System Alert</h2>
+      <div id="alertModalText" class="alert-modal-text">Alert message</div>
+      <div class="modal-actions"><button onclick="closeAlertModal()">OK</button></div>
+    </div>
+  </div>
+
+  
+  <div id="thresholdModal" class="modal-backdrop">
+    <div class="modal">
+      <h2>Threshold Settings</h2>
+      <p>Change the automatic control values here. These values are saved in Supabase and used by the dashboard.</p>
+
+      <div class="threshold-grid">
+        <div class="form-row">
+          <label>Light threshold, lx</label>
+          <input id="thresholdLightOnly" type="number" min="0" step="1" value="150">
+          <div class="input-help">Light turns ON when lux is lower than this value.</div>
+        </div>
+
+        <div class="form-row">
+          <label>Soil moisture threshold, %</label>
+          <input id="thresholdMoistureOnly" type="number" min="0" max="100" step="1" value="70">
+          <div class="input-help">Irrigation pump turns ON when soil moisture is lower than this value.</div>
+        </div>
+
+        <div class="form-row">
+          <label>Tray water threshold, %</label>
+          <input id="thresholdTrayOnly" type="number" min="0" max="100" step="1" value="0">
+          <div class="input-help">Tray return pump turns ON when tray water is higher than this value.</div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="secondary" onclick="closeThresholdModal()">Cancel</button>
+        <button onclick="saveThresholdOnly()">Save Threshold</button>
+      </div>
+    </div>
+  </div>
+  <div id="settingsModal" class="modal-backdrop">
+    <div class="modal">
+      <h2>Theme Settings</h2>
+      <p>Choose the website appearance mode. Supabase URL and API key are now stored inside <b>supabase_config.js</b>, so users do not need to paste them here.</p>
+
+      <div id="themeModeText" class="theme-mode-text">Current mode: Dark Mode</div>
+
+      <div class="theme-choice-row">
+        <button onclick="setThemeMode('dark')">Dark Mode</button>
+        <button class="secondary" onclick="setThemeMode('light')">Light Mode</button>
+      </div>
+
+      <div class="modal-actions">
+        <button class="secondary" onclick="closeSettings()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <script src="supabase_config.js"></script>
+  <script src="auth.js"></script>
+  <script src="bgm.js"></script>
+  <script src="theater.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
