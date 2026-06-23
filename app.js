@@ -1,11 +1,10 @@
-
 requireLogin();
 
 const READINGS_TABLE = "sensor_readings";
 const CONTROL_TABLE = "device_controls";
 const ALERTS_TABLE = "system_alerts";
 const SETTINGS_TABLE = "system_settings";
-const AUTO_REFRESH_MS = 600000;
+const AUTO_REFRESH_MS = 60000; // 1 minute refresh
 
 let thresholdSettings = {
   light_lux: 150,
@@ -136,7 +135,6 @@ function closeSettings() {
   el("settingsModal").classList.remove("show");
 }
 
-
 function openThresholdModal() {
   thresholdSettings = getLocalThresholds();
   updateThresholdDisplay();
@@ -175,7 +173,6 @@ async function saveThresholdOnly() {
   updateCards(latestReading || {});
   showMessage("Threshold values saved.");
 }
-
 
 function getConfig() {
   return {
@@ -297,7 +294,6 @@ function updateGraphFromCachedData() {
   drawChart(graphRows);
 }
 
-
 async function loadThresholdSettings() {
   thresholdSettings = getLocalThresholds();
 
@@ -409,6 +405,7 @@ async function loadAlerts() {
     const msg = String(a.message || "");
     if (!/fertilizer.*(tank|level|low)/i.test(msg)) alerts.push(msg);
   });
+
   const uniqueAlerts = [...new Set(alerts)];
   if (uniqueAlerts.length) showAlert("⚠️ " + uniqueAlerts.join("<br><br>⚠️ "));
 }
@@ -490,55 +487,82 @@ function updateControlTexts(rows) {
   if (light) {
     if (light.mode === "manual") {
       el("lightModeText").textContent = "Mode: Manual " + (light.target_state ? "ON" : "OFF");
+
       if (light.target_state && light.updated_at) {
         liveStartMs.light_bulb = new Date(light.updated_at).getTime();
         liveSeconds.light_bulb = Math.max(0, Math.floor((Date.now() - liveStartMs.light_bulb) / 1000));
       }
+
       setDeviceVisual("light_bulb", !!light.target_state);
+
     } else {
       el("lightModeText").textContent = "Mode: AUTO";
-      if (latestReading) setDeviceVisual("light_bulb", Number(latestReading.lux) >= 0 && Number(latestReading.lux) < thresholdSettings.light_lux);
+
+      if (latestReading) {
+        setDeviceVisual("light_bulb", Number(latestReading.lux) >= 0 && Number(latestReading.lux) < thresholdSettings.light_lux);
+      }
     }
   }
 
   if (pump) {
     if (pump.mode === "manual") {
       el("pumpModeText").textContent = "Mode: Manual " + (pump.target_state ? "ON" : "OFF");
+
       if (pump.target_state && pump.updated_at) {
         liveStartMs.water_pump = new Date(pump.updated_at).getTime();
         liveSeconds.water_pump = Math.max(0, Math.floor((Date.now() - liveStartMs.water_pump) / 1000));
       }
+
       setDeviceVisual("water_pump", !!pump.target_state);
+
     } else {
       el("pumpModeText").textContent = "Mode: AUTO";
-      if (latestReading) setDeviceVisual("water_pump", Number(latestReading.moisture_percent) < thresholdSettings.moisture_percent);
+
+      if (latestReading) {
+        const m1 = Number(latestReading.moisture_1_percent ?? latestReading.moisture_percent ?? 0);
+        const m2 = Number(latestReading.moisture_2_percent ?? latestReading.moisture_percent ?? 0);
+        const overallMoisture = Number(latestReading.moisture_percent ?? ((m1 + m2) / 2));
+
+        setDeviceVisual("water_pump", overallMoisture <= thresholdSettings.moisture_percent);
+      }
     }
   }
-
 
   if (tray) {
     if (tray.mode === "manual") {
       el("trayPumpModeText").textContent = "Mode: Manual " + (tray.target_state ? "ON" : "OFF");
+
       if (tray.target_state && tray.updated_at) {
         liveStartMs.tray_pump = new Date(tray.updated_at).getTime();
         liveSeconds.tray_pump = Math.max(0, Math.floor((Date.now() - liveStartMs.tray_pump) / 1000));
       }
+
       setDeviceVisual("tray_pump", !!tray.target_state);
+
     } else {
       el("trayPumpModeText").textContent = "Mode: AUTO";
-      if (latestReading) setDeviceVisual("tray_pump", Number(latestReading.water_level_percent) > thresholdSettings.tray_water_percent);
+
+      if (latestReading) {
+        setDeviceVisual("tray_pump", Number(latestReading.water_level_percent) > thresholdSettings.tray_water_percent);
+      }
     }
+
   } else if (el("trayPumpModeText")) {
     el("trayPumpModeText").textContent = "Mode: AUTO";
-    if (latestReading) setDeviceVisual("tray_pump", Number(latestReading.water_level_percent) > thresholdSettings.tray_water_percent);
+
+    if (latestReading) {
+      setDeviceVisual("tray_pump", Number(latestReading.water_level_percent) > thresholdSettings.tray_water_percent);
+    }
   }
 
   if (fertilizer) {
     el("fertilizerModeText").textContent = "Mode: Manual " + (fertilizer.target_state ? "ON" : "OFF");
+
     if (fertilizer.target_state && fertilizer.updated_at) {
       liveStartMs.fertilizer_pump = new Date(fertilizer.updated_at).getTime();
       liveSeconds.fertilizer_pump = Math.max(0, Math.floor((Date.now() - liveStartMs.fertilizer_pump) / 1000));
     }
+
     setDeviceVisual("fertilizer_pump", !!fertilizer.target_state);
   }
 
@@ -614,6 +638,7 @@ async function sendDeviceCommand(deviceName, mode, targetState) {
       liveStartMs[deviceName] = null;
       liveSeconds[deviceName] = 0;
     }
+
     setDeviceVisual(deviceName, targetState);
     updateTimerText();
   }
@@ -652,18 +677,22 @@ async function insertTestRow() {
     temperature: Number((28 + Math.random() * 6).toFixed(2)),
     humidity: Number((60 + Math.random() * 25).toFixed(2)),
     lux: Number(lux.toFixed(2)),
+
     moisture_raw: Math.floor(1500 + Math.random() * 2500),
     moisture_1_raw: Math.floor(1500 + Math.random() * 2500),
     moisture_1_percent: moisture1,
     moisture_2_raw: Math.floor(1500 + Math.random() * 2500),
     moisture_2_percent: moisture2,
     moisture_percent: moisture,
+
     water_level_raw: Math.floor(800 + Math.random() * 3000),
     water_level_percent: water,
+
     light_relay: light && light.mode === "manual" ? !!light.target_state : lux < thresholdSettings.light_lux,
-    pump_relay: pump && pump.mode === "manual" ? !!pump.target_state : moisture < thresholdSettings.moisture_percent,
+    pump_relay: pump && pump.mode === "manual" ? !!pump.target_state : moisture <= thresholdSettings.moisture_percent,
     tray_pump_relay: tray && tray.mode === "manual" ? !!tray.target_state : water > thresholdSettings.tray_water_percent,
     fertilizer_relay: fertilizer ? !!fertilizer.target_state : false,
+
     light_on_seconds: liveSeconds.light_bulb,
     pump_on_seconds: liveSeconds.water_pump,
     tray_pump_on_seconds: liveSeconds.tray_pump,
@@ -727,9 +756,11 @@ function drawChart(rows) {
   if (!rows || rows.length < 2) {
     ctx.fillStyle = "#92aabe";
     ctx.font = "15px Segoe UI,Arial";
+
     const text = rows && rows.length === 1
       ? "Only 1 record in this time range. Need at least 2 records to draw graph."
       : "No records in this time range. Click Refresh when new data is uploaded.";
+
     ctx.fillText(text, left + 16, h / 2);
     return;
   }
@@ -748,9 +779,11 @@ function drawChart(rows) {
 
   function series(values, color) {
     ctx.beginPath();
+
     values.forEach((v, i) => {
       const px = x(i);
       const py = y(v);
+
       if (i === 0) ctx.moveTo(px, py);
       else ctx.lineTo(px, py);
     });
@@ -790,10 +823,9 @@ window.addEventListener("load", () => {
   startTimers();
 });
 
-
 window.addEventListener("load", () => {
   thresholdSettings = getLocalThresholds();
   updateThresholdDisplay();
 });
 
-if (typeof applyThemeMode === 'function') applyThemeMode();
+if (typeof applyThemeMode === "function") applyThemeMode();
